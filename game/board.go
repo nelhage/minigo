@@ -48,10 +48,10 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 func (b *boardState) floodFill(root *bit.Vector, bounds *bit.Vector) *bit.Vector {
 	for {
 		next := root.Copy()
-		next.Or(next.Copy().Lsh(1).AndNot(b.g.r))
-		next.Or(next.Copy().Rsh(1).AndNot(b.g.l))
-		next.Or(next.Copy().Lsh(uint(b.g.size)))
-		next.Or(next.Copy().Rsh(uint(b.g.size)))
+		next.Or(root.Copy().Lsh(1).AndNot(b.g.r))
+		next.Or(root.Copy().Rsh(1).AndNot(b.g.l))
+		next.Or(root.Copy().Lsh(uint(b.g.size)))
+		next.Or(root.Copy().Rsh(uint(b.g.size)))
 		next.AndNot(bounds)
 		if next.Equal(root) {
 			break
