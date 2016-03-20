@@ -44,3 +44,10 @@ func (g *Game) Move(x, y int) error {
 	g.board = b
 	return nil
 }
+
+// At returns a boolean indicating whether a given intersection is
+// populated, and the color of the stone at that intersection if there
+// is one
+func (g *Game) At(x, y int) (Color, bool) {
+	return g.board.at(x, y)
+}

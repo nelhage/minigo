@@ -42,3 +42,14 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 	out.toPlay = !out.toPlay
 	return &out, nil
 }
+
+func (b *boardState) at(x, y int) (Color, bool) {
+	bit := x*b.g.size + y
+	if b.white.At(bit) {
+		return White, true
+	}
+	if b.black.At(bit) {
+		return Black, true
+	}
+	return Black, false
+}
