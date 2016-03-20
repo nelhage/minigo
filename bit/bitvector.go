@@ -18,8 +18,18 @@ func NewVector(bits int) *Vector {
 func (v *Vector) normalize() {
 	trailing := uint(v.bits % 64)
 	if trailing != 0 {
-		mask := (uint64(1) << (trailing + 1)) - 1
+		mask := (uint64(1) << trailing) - 1
 		v.data[len(v.data)-1] &= mask
+	}
+}
+
+func (v *Vector) checkNormalized() {
+	trailing := uint(v.bits % 64)
+	if trailing != 0 {
+		mask := (uint64(1) << trailing) - 1
+		if v.data[len(v.data)-1]&mask != v.data[len(v.data)-1] {
+			panic("checkNormalized")
+		}
 	}
 }
 
@@ -82,6 +92,7 @@ func (v *Vector) Or(rhs *Vector) *Vector {
 	for i, w := range rhs.data {
 		v.data[i] |= w
 	}
+	v.normalize()
 	return v
 }
 
@@ -115,6 +126,7 @@ func (v *Vector) Xor(rhs *Vector) *Vector {
 	for i, w := range rhs.data {
 		v.data[i] ^= w
 	}
+	v.normalize()
 	return v
 }
 
@@ -185,6 +197,9 @@ func (v *Vector) fullShiftRight(off uint) {
 
 // Equal returns true iff the lhs and rhs have identical bit patterns
 func (v *Vector) Equal(rhs *Vector) bool {
+	v.checkNormalized()
+	rhs.checkNormalized()
+
 	for i, w := range v.data {
 		if rhs.data[i] != w {
 			return false

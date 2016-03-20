@@ -92,4 +92,10 @@ func TestUnaligned(t *testing.T) {
 	if !a.Equal(b) {
 		t.Errorf("rsh into undefined bits lived: %x", a.data[len(a.data)-1])
 	}
+
+	a.Set(99)
+	a.Rsh(1)
+	if !a.Equal(b) {
+		t.Errorf("rsh into undefined bits lived: %x", a.data[len(a.data)-1])
+	}
 }
