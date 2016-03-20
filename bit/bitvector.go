@@ -59,53 +59,60 @@ func (v *Vector) At(bit int) bool {
 	return v.data[i]&mask != 0
 }
 
-// Set sets the specified bit
-func (v *Vector) Set(bit int) {
+// Set sets the specified bit and returns the input vector
+func (v *Vector) Set(bit int) *Vector {
 	i, mask := v.pos(bit)
 	v.data[i] |= mask
+	return v
 }
 
-// Clear clears the specified bit
-func (v *Vector) Clear(bit int) {
+// Clear clears the specified bit and returns the input vector
+func (v *Vector) Clear(bit int) *Vector {
 	i, mask := v.pos(bit)
 	v.data[i] &= ^mask
+	return v
 }
 
-// Or logically-or's the rhs into this vector
-func (v *Vector) Or(rhs *Vector) {
+// Or logically-or's the rhs into this vector and returns the input
+// vector
+func (v *Vector) Or(rhs *Vector) *Vector {
 	if v.Len() != rhs.Len() {
 		panic("Or(): len mismatch")
 	}
 	for i, w := range rhs.data {
 		v.data[i] |= w
 	}
+	return v
 }
 
 // And logically-and's the rhs into this vector
-func (v *Vector) And(rhs *Vector) {
+func (v *Vector) And(rhs *Vector) *Vector {
 	if v.Len() != rhs.Len() {
 		panic("And(): len mismatch")
 	}
 	for i, w := range rhs.data {
 		v.data[i] &= w
 	}
+	return v
 }
 
 // Xor logically-xor's the rhs into this vector
-func (v *Vector) Xor(rhs *Vector) {
+func (v *Vector) Xor(rhs *Vector) *Vector {
 	if v.Len() != rhs.Len() {
 		panic("Xor(): len mismatch")
 	}
 	for i, w := range rhs.data {
 		v.data[i] ^= w
 	}
+	return v
 }
 
 // Not negates the value of every bit in v
-func (v *Vector) Not() {
+func (v *Vector) Not() *Vector {
 	for i, w := range v.data {
 		v.data[i] = ^w
 	}
+	return v
 }
 
 // Lsh shifts the input vector `bits` positions left (towards lower
