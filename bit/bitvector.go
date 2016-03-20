@@ -96,6 +96,17 @@ func (v *Vector) And(rhs *Vector) *Vector {
 	return v
 }
 
+// AndNot is equivalent to v.And(rhs.Copy().Not()), but saves a copy.
+func (v *Vector) AndNot(rhs *Vector) *Vector {
+	if v.Len() != rhs.Len() {
+		panic("AndNot(): len mismatch")
+	}
+	for i, w := range rhs.data {
+		v.data[i] &= ^w
+	}
+	return v
+}
+
 // Xor logically-xor's the rhs into this vector
 func (v *Vector) Xor(rhs *Vector) *Vector {
 	if v.Len() != rhs.Len() {
@@ -112,12 +123,13 @@ func (v *Vector) Not() *Vector {
 	for i, w := range v.data {
 		v.data[i] = ^w
 	}
+	v.normalize()
 	return v
 }
 
 // Lsh shifts the input vector `bits` positions left (towards lower
 // indexes)
-func (v *Vector) Lsh(bits uint) {
+func (v *Vector) Lsh(bits uint) *Vector {
 	full := bits / 64
 	partial := bits % 64
 	if full != 0 {
@@ -129,6 +141,7 @@ func (v *Vector) Lsh(bits uint) {
 		v.data[i] = v.data[i]>>partial | accum
 		accum = out
 	}
+	return v
 }
 
 // Shift the words in `data` `off` positions towards lower indexes
@@ -143,7 +156,7 @@ func (v *Vector) fullShiftLeft(off uint) {
 }
 
 // Rsh right-shifts vector by `bits` bits (towards higher indexes)
-func (v *Vector) Rsh(bits uint) {
+func (v *Vector) Rsh(bits uint) *Vector {
 	full := bits / 64
 	partial := bits % 64
 	if full != 0 {
@@ -156,6 +169,7 @@ func (v *Vector) Rsh(bits uint) {
 		accum = out
 	}
 	v.normalize()
+	return v
 }
 
 // Shift the words in `data` `off` positions towards higher indexes

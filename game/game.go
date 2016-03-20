@@ -16,6 +16,9 @@ var (
 type Game struct {
 	size  int
 	board *boardState
+
+	l, r, t, b *bit.Vector
+	z          *bit.Vector
 }
 
 // New returns a new game of board size `size` on a side
@@ -27,7 +30,22 @@ func New(size int) *Game {
 		black:  bit.NewVector(size * size),
 		toPlay: Black,
 	}
+	g.precompute()
 	return g
+}
+
+func (g *Game) precompute() {
+	g.l = bit.NewVector(g.size * g.size)
+	g.r = bit.NewVector(g.size * g.size)
+	g.t = bit.NewVector(g.size * g.size)
+	g.b = bit.NewVector(g.size * g.size)
+	g.z = bit.NewVector(g.size * g.size)
+	for i := 0; i < g.size; i++ {
+		g.l.Set(i * g.size)
+		g.r.Set((i+1)*g.size - 1)
+		g.t.Set(i)
+		g.b.Set(g.size*(g.size-1) + i)
+	}
 }
 
 // ToPlay returns the player whose turn it is

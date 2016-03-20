@@ -1,7 +1,9 @@
 package game
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 
 	"nelhage.com/minigo/bit"
 )
@@ -43,6 +45,22 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 	return &out, nil
 }
 
+func (b *boardState) floodFill(root *bit.Vector, bounds *bit.Vector) *bit.Vector {
+	for {
+		next := root.Copy()
+		next.Or(next.Copy().Lsh(1).AndNot(b.g.r))
+		next.Or(next.Copy().Rsh(1).AndNot(b.g.l))
+		next.Or(next.Copy().Lsh(uint(b.g.size)))
+		next.Or(next.Copy().Rsh(uint(b.g.size)))
+		next.AndNot(bounds)
+		if next.Equal(root) {
+			break
+		}
+		root = next
+	}
+	return root
+}
+
 func (b *boardState) at(x, y int) (Color, bool) {
 	bit := x*b.g.size + y
 	if b.white.At(bit) {
@@ -52,4 +70,24 @@ func (b *boardState) at(x, y int) (Color, bool) {
 		return Black, true
 	}
 	return Black, false
+}
+
+func (b *boardState) String() string {
+	out := &bytes.Buffer{}
+	for r := 0; r < b.g.size; r++ {
+		fmt.Fprintf(out, "% 2d", r)
+		for c := 0; c < b.g.size; c++ {
+			c, ok := b.at(c, r)
+			switch {
+			case !ok:
+				fmt.Fprintf(out, " +")
+			case c == White:
+				fmt.Fprintf(out, " O")
+			case c == Black:
+				fmt.Fprintf(out, " X")
+			}
+		}
+		fmt.Fprintf(out, "\n")
+	}
+	return out.String()
 }

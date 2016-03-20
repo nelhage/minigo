@@ -13,6 +13,18 @@ func TestBasic(t *testing.T) {
 			t.Fatalf("Move(%d,%d): %v", m.x, m.y, err)
 		}
 	}
+
+	if err := g.Move(10, 10); err != ErrOutOfBounds {
+		t.Fatalf("out of bounds move")
+	}
+	if g.ToPlay() != Black {
+		t.Fatalf("bad move advanced player")
+	}
+
+	if err := g.Move(4, 7); err != ErrOccupied {
+		t.Fatalf("occupied move")
+	}
+
 	ats := []struct {
 		x, y int
 		c    Color
@@ -31,6 +43,51 @@ func TestBasic(t *testing.T) {
 		if at.c != c || at.ok != ok {
 			t.Errorf("At(%d,%d) = (%v,%v) != (%v, %v)",
 				at.x, at.y, c, ok, at.c, at.ok)
+		}
+	}
+}
+
+func TestFloodFill(t *testing.T) {
+	g := New(9)
+	root := g.board.white.Copy().Set(4*9 + 4)
+	flood := g.board.floodFill(root, g.board.white)
+	if !flood.Equal(g.z.Copy().Not()) {
+		b := &boardState{
+			black: flood,
+			white: g.board.white,
+			g:     g,
+		}
+		t.Errorf("flood fill did not fill:\n%s", b.String())
+	}
+
+	bounds := g.board.white.Copy()
+	for i := 2; i < 7; i++ {
+		bounds.Set(2*g.size + i)
+		bounds.Set(i*g.size + 2)
+		bounds.Set(6*g.size + i)
+		bounds.Set(i*g.size + 6)
+	}
+
+	flood = g.board.floodFill(root, bounds)
+	b := &boardState{
+		black: flood,
+		white: bounds,
+		g:     g,
+	}
+	for i := 0; i < 2; i++ {
+		for j := 0; j < g.size; j++ {
+			check := []struct{ x, y int }{
+				{i, j},
+				{g.size - i, j},
+				{j, i},
+				{g.size - j, i},
+			}
+			for _, ch := range check {
+				if _, ok := b.at(ch.x, ch.y); ok {
+					t.Fatalf("At(%d,%d):\n%s",
+						ch.x, ch.y, b)
+				}
+			}
 		}
 	}
 }
