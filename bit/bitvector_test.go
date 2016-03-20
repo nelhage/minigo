@@ -83,3 +83,13 @@ func TestRsh(t *testing.T) {
 		}
 	}
 }
+
+func TestUnaligned(t *testing.T) {
+	a := NewVector(100)
+	b := NewVector(100)
+	a.Set(99)
+	a.Rsh(2)
+	if !a.Equal(b) {
+		t.Errorf("rsh into undefined bits lived: %x", a.data[len(a.data)-1])
+	}
+}

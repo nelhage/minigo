@@ -15,6 +15,14 @@ func NewVector(bits int) *Vector {
 	}
 }
 
+func (v *Vector) normalize() {
+	trailing := uint(v.bits % 64)
+	if trailing != 0 {
+		mask := (uint64(1) << (trailing + 1)) - 1
+		v.data[len(v.data)-1] &= mask
+	}
+}
+
 // Copy returns a new vector with identical length and bit pattern,
 // which does not share any storage with the original vector
 func (v *Vector) Copy() *Vector {
@@ -140,6 +148,7 @@ func (v *Vector) Rsh(bits uint) {
 		v.data[i] = v.data[i]<<partial | accum
 		accum = out
 	}
+	v.normalize()
 }
 
 // Shift the words in `data` `off` positions towards higher indexes
@@ -151,4 +160,14 @@ func (v *Vector) fullShiftRight(off uint) {
 			v.data[i] = 0
 		}
 	}
+}
+
+// Equal returns true iff the lhs and rhs have identical bit patterns
+func (v *Vector) Equal(rhs *Vector) bool {
+	for i, w := range v.data {
+		if rhs.data[i] != w {
+			return false
+		}
+	}
+	return true
 }
