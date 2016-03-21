@@ -146,7 +146,7 @@ func TestFloodFill(t *testing.T) {
 2 + + * + + + * + +
 3 X + + + + + + + X
 4 O X + + + + + X O
-5 O + + + + + + + X
+5 X + + + + + + + X
 6 + + * X + + * + +
 7 + + X + X + + + +
 8 + X + O + X + + +
@@ -157,7 +157,7 @@ func TestFloodFill(t *testing.T) {
 2 + + * + + + * + +
 3 X + + + + + + + X
 4 O X + + + + + X O
-5 O + + + + + + + X
+5 X + + + + + + + X
 6 + + * X + + * + +
 7 + + X O X + + + +
 8 + X O O O X + + +
