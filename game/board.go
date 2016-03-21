@@ -16,12 +16,17 @@ var (
 	// ErrOccupied is returned if a requested move is on top of an
 	// existing stone.
 	ErrOccupied = errors.New("requested position is already occupied")
+
+	// ErrSelfCapture is returned if a requested move would result
+	// in capture of the placed stone
+	ErrSelfCapture = errors.New("requested move results in self-capture")
 )
 
 // boardState represents a specific game position. It is immutable
 // once created
 type boardState struct {
 	g      *Game
+	prev   *boardState
 	white  *bit.Vector
 	black  *bit.Vector
 	toPlay Color
@@ -31,27 +36,41 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 	if x < 0 || x >= b.g.size || y < 0 || y >= b.g.size {
 		return nil, ErrOutOfBounds
 	}
-	bit := x*b.g.size + y
-	if b.white.At(bit) || b.black.At(bit) {
+	idx := y*b.g.size + x
+	if b.white.At(idx) || b.black.At(idx) {
 		return nil, ErrOccupied
 	}
 	out := *b
+	out.prev = b
+	var me, them **bit.Vector
 	if b.toPlay == White {
-		out.white = out.white.Copy().Set(bit)
+		me, them = &out.white, &out.black
 	} else {
-		out.black = out.black.Copy().Set(bit)
+		them, me = &out.white, &out.black
 	}
+	*me = (*me).Copy().Set(idx)
+	group := out.floodFill(bit.NewVector(b.white.Len()).Set(idx),
+		(*me).Copy().Not())
+	if b.grow(group).AndNot(group).AndNot(*them).Popcount() == 0 {
+		return nil, ErrSelfCapture
+	}
+
 	out.toPlay = !out.toPlay
 	return &out, nil
 }
 
+func (b *boardState) grow(root *bit.Vector) *bit.Vector {
+	next := root.Copy()
+	next.Or(root.Copy().Lsh(1).AndNot(b.g.r))
+	next.Or(root.Copy().Rsh(1).AndNot(b.g.l))
+	next.Or(root.Copy().Lsh(uint(b.g.size)))
+	next.Or(root.Copy().Rsh(uint(b.g.size)))
+	return next
+}
+
 func (b *boardState) floodFill(root *bit.Vector, bounds *bit.Vector) *bit.Vector {
 	for {
-		next := root.Copy()
-		next.Or(root.Copy().Lsh(1).AndNot(b.g.r))
-		next.Or(root.Copy().Rsh(1).AndNot(b.g.l))
-		next.Or(root.Copy().Lsh(uint(b.g.size)))
-		next.Or(root.Copy().Rsh(uint(b.g.size)))
+		next := b.grow(root)
 		next.AndNot(bounds)
 		if next.Equal(root) {
 			break
@@ -62,7 +81,7 @@ func (b *boardState) floodFill(root *bit.Vector, bounds *bit.Vector) *bit.Vector
 }
 
 func (b *boardState) at(x, y int) (Color, bool) {
-	bit := x*b.g.size + y
+	bit := y*b.g.size + x
 	if b.white.At(bit) {
 		return White, true
 	}

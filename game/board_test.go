@@ -180,3 +180,23 @@ func TestFloodFill(t *testing.T) {
 		}
 	}
 }
+
+func TestSelfKill(t *testing.T) {
+	g := New(9)
+	g.board = board(g, `
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + X + + + +
+4 + + + X + X + + +
+5 + + + + X + + + +
+6 + + * + + + * + +
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`)
+	g.board.toPlay = White
+	if err := g.Move(4, 4); err != ErrSelfCapture {
+		t.Fatal("game allowed self-capture")
+	}
+}
