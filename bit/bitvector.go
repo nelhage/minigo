@@ -65,12 +65,18 @@ func (v *Vector) pos(bit int) (i int, mask uint64) {
 
 // At returns the value of the bit at position `bit`
 func (v *Vector) At(bit int) bool {
+	if bit >= v.bits {
+		panic("at: out of range")
+	}
 	i, mask := v.pos(bit)
 	return v.data[i]&mask != 0
 }
 
 // Set sets the specified bit and returns the input vector
 func (v *Vector) Set(bit int) *Vector {
+	if bit >= v.bits {
+		panic("set: out of range")
+	}
 	i, mask := v.pos(bit)
 	v.data[i] |= mask
 	return v
@@ -78,6 +84,9 @@ func (v *Vector) Set(bit int) *Vector {
 
 // Clear clears the specified bit and returns the input vector
 func (v *Vector) Clear(bit int) *Vector {
+	if bit >= v.bits {
+		panic("clear: out of range")
+	}
 	i, mask := v.pos(bit)
 	v.data[i] &= ^mask
 	return v
