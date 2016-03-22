@@ -49,14 +49,42 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 		them, me = &out.white, &out.black
 	}
 	*me = (*me).Copy().Set(idx)
-	group := out.floodFill(bit.NewVector(b.white.Len()).Set(idx),
-		(*me).Copy().Not())
-	if b.grow(group).AndNot(group).AndNot(*them).Popcount() == 0 {
+
+	if c := out.deadGroupAt(idx, *me, *them); c != nil {
 		return nil, ErrSelfCapture
+	}
+	if x > 0 {
+		if c := out.deadGroupAt(idx-1, *them, *me); c != nil {
+			*them = (*them).Copy().AndNot(c)
+		}
+	}
+	if x < b.g.size-1 {
+		if c := out.deadGroupAt(idx+1, *them, *me); c != nil {
+			*them = (*them).Copy().AndNot(c)
+		}
+	}
+	if y > 0 {
+		if c := out.deadGroupAt(idx-b.g.size, *them, *me); c != nil {
+			*them = (*them).Copy().AndNot(c)
+		}
+	}
+	if y < b.g.size-1 {
+		if c := out.deadGroupAt(idx+b.g.size, *them, *me); c != nil {
+			*them = (*them).Copy().AndNot(c)
+		}
 	}
 
 	out.toPlay = !out.toPlay
 	return &out, nil
+}
+
+func (b *boardState) deadGroupAt(idx int, me *bit.Vector, them *bit.Vector) *bit.Vector {
+	group := b.floodFill(bit.NewVector(b.white.Len()).Set(idx),
+		me.Copy().Not())
+	if b.grow(group).AndNot(group).AndNot(them).Popcount() == 0 {
+		return group
+	}
+	return nil
 }
 
 func (b *boardState) grow(root *bit.Vector) *bit.Vector {

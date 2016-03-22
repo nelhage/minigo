@@ -200,3 +200,108 @@ func TestSelfKill(t *testing.T) {
 		t.Fatal("game allowed self-capture")
 	}
 }
+
+func TestCapture(t *testing.T) {
+	cases := []struct {
+		in   string
+		who  Color
+		x, y int
+		out  string
+	}{
+		{
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + +
+4 + + + X O X + + +
+5 + + + + X + + + +
+6 + + * + + + * + +
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+			Black, 4, 3,
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + X + + + +
+4 + + + X + X + + +
+5 + + + + X + + + +
+6 + + * + + + * + +
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+		},
+		{
+			`
+0 + + + + X X X + +
+1 + + + X O O O O X
+2 + + * X O X X X +
+3 + + + X O X + + +
+4 + + + X O X + + +
+5 + + + + X + + + +
+6 + + * + + + * + +
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+			Black, 7, 0,
+			`
+0 + + + + X X X X +
+1 + + + X + + + + X
+2 + + * X + X X X +
+3 + + + X + X + + +
+4 + + + X + X + + +
+5 + + + + X + + + +
+6 + + * + + + * + +
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+		},
+		{
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + O
+4 + + + + + + + O X
+5 + + + + + + + O X
+6 + + * + + + * O X
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+			White, 8, 7,
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + O
+4 + + + + + + + O +
+5 + + + + + + + O +
+6 + + * + + + * O +
+7 + + + + + + + + O
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+		},
+	}
+	for i, tc := range cases {
+		g := New(9)
+		g.board = board(g, tc.in)
+		g.board.toPlay = tc.who
+		if err := g.Move(tc.x, tc.y); err != nil {
+			t.Errorf("%d: %v", i, err)
+			continue
+		}
+		expect := board(g, tc.out)
+		if !expect.white.Equal(g.board.white) ||
+			!expect.black.Equal(g.board.black) {
+			t.Errorf("%d: want:\n%s\ngot:\n%s", i, expect, g.board)
+		}
+	}
+}
