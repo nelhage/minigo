@@ -45,6 +45,13 @@ func board(g *Game, in string) *boardState {
 	}
 }
 
+func game(size int, b string, who Color) *Game {
+	g := New(size)
+	g.board = board(g, b)
+	g.board.toPlay = who
+	return g
+}
+
 func TestBasic(t *testing.T) {
 	g := New(9)
 	moves := []struct{ x, y int }{
@@ -289,11 +296,36 @@ func TestCapture(t *testing.T) {
   0 1 2 3 4 5 6 7 8
 `,
 		},
+		{
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + O
+4 + + + + + + + O X
+5 + + + + + + + X +
+6 + + * + + + * + X
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+			White, 8, 5,
+			`
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + O
+4 + + + + + + + O +
+5 + + + + + + + X O
+6 + + * + + + * + X
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`,
+		},
 	}
 	for i, tc := range cases {
-		g := New(9)
-		g.board = board(g, tc.in)
-		g.board.toPlay = tc.who
+		g := game(9, tc.in, tc.who)
 		if err := g.Move(tc.x, tc.y); err != nil {
 			t.Errorf("%d: %v", i, err)
 			continue
@@ -303,5 +335,26 @@ func TestCapture(t *testing.T) {
 			!expect.black.Equal(g.board.black) {
 			t.Errorf("%d: want:\n%s\ngot:\n%s", i, expect, g.board)
 		}
+	}
+}
+
+func TestKo(t *testing.T) {
+	g := game(9, `
+0 + + + + + + + + +
+1 + + + + + + + + +
+2 + + * + + + * + +
+3 + + + + + + + + O
+4 + + + + + + + O X
+5 + + + + + + + X +
+6 + + * + + + * + X
+7 + + + + + + + + +
+8 + + + + + + + + +
+  0 1 2 3 4 5 6 7 8
+`, White)
+	if err := g.Move(8, 5); err != nil {
+		t.Fatal("move:", err)
+	}
+	if err := g.Move(8, 4); err != ErrKo {
+		t.Fatal("ko:", err)
 	}
 }

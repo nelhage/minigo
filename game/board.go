@@ -20,6 +20,10 @@ var (
 	// ErrSelfCapture is returned if a requested move would result
 	// in capture of the placed stone
 	ErrSelfCapture = errors.New("requested move results in self-capture")
+
+	// ErrKo is returned if a move is illegal because it repeats
+	// the previous position
+	ErrKo = errors.New("move results in an illegal ko capture")
 )
 
 // boardState represents a specific game position. It is immutable
@@ -50,9 +54,6 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 	}
 	*me = (*me).Copy().Set(idx)
 
-	if c := out.deadGroupAt(idx, *me, *them); c != nil {
-		return nil, ErrSelfCapture
-	}
 	if x > 0 {
 		if c := out.deadGroupAt(idx-1, *them, *me); c != nil {
 			*them = (*them).Copy().AndNot(c)
@@ -72,6 +73,14 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 		if c := out.deadGroupAt(idx+b.g.size, *them, *me); c != nil {
 			*them = (*them).Copy().AndNot(c)
 		}
+	}
+	if c := out.deadGroupAt(idx, *me, *them); c != nil {
+		return nil, ErrSelfCapture
+	}
+
+	if b.prev != nil && b.prev.white.Equal(out.white) &&
+		b.prev.black.Equal(out.black) {
+		return nil, ErrKo
 	}
 
 	out.toPlay = !out.toPlay
