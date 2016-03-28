@@ -15,9 +15,9 @@
    var GoBoard = React.createClass({
        render: function() {
          var rows = [];
-         for (var r = 0; r < size; r++) {
+         for (var r = 0; r < this.props.size; r++) {
            var row = [];
-           for (var c = 0; c < size; c++) {
+           for (var c = 0; c < this.props.size; c++) {
              row.push(<GoSquare key={c} />);
            }
            rows.push(<div className="row" key={r}>{row}</div>);
@@ -31,7 +31,7 @@
    });
 
    ReactDOM.render(
-     <GoBoard />,
+     <GoBoard size={size} />,
      document.getElementById('content')
    );
  })();
