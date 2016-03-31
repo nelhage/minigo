@@ -55,9 +55,13 @@
 }
 
 .goboard .stone.black {
-    background-image: url("../img/white_stone.png");
+    background-image: url("../img/black_stone.png");
 }
 
-.goboard .stone.empty:hover {
+.goboard.black .stone.empty:hover {
     background-image: url("../img/black_stone.png");
+}
+
+.goboard.white .stone.empty:hover {
+    background-image: url("../img/white_stone.png");
 }

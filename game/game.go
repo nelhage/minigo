@@ -14,7 +14,7 @@ var (
 
 // Game represents a game of Go
 type Game struct {
-	size  int
+	Size  int
 	board *boardState
 
 	l, r, t, b *bit.Vector
@@ -23,7 +23,7 @@ type Game struct {
 
 // New returns a new game of board size `size` on a side
 func New(size int) *Game {
-	g := &Game{size: size}
+	g := &Game{Size: size}
 	g.board = &boardState{
 		g:      g,
 		white:  bit.NewVector(size * size),
@@ -35,16 +35,16 @@ func New(size int) *Game {
 }
 
 func (g *Game) precompute() {
-	g.l = bit.NewVector(g.size * g.size)
-	g.r = bit.NewVector(g.size * g.size)
-	g.t = bit.NewVector(g.size * g.size)
-	g.b = bit.NewVector(g.size * g.size)
-	g.z = bit.NewVector(g.size * g.size)
-	for i := 0; i < g.size; i++ {
-		g.l.Set(i * g.size)
-		g.r.Set((i+1)*g.size - 1)
+	g.l = bit.NewVector(g.Size * g.Size)
+	g.r = bit.NewVector(g.Size * g.Size)
+	g.t = bit.NewVector(g.Size * g.Size)
+	g.b = bit.NewVector(g.Size * g.Size)
+	g.z = bit.NewVector(g.Size * g.Size)
+	for i := 0; i < g.Size; i++ {
+		g.l.Set(i * g.Size)
+		g.r.Set((i+1)*g.Size - 1)
 		g.t.Set(i)
-		g.b.Set(g.size*(g.size-1) + i)
+		g.b.Set(g.Size*(g.Size-1) + i)
 	}
 }
 

@@ -37,10 +37,10 @@ type boardState struct {
 }
 
 func (b *boardState) move(x, y int) (*boardState, error) {
-	if x < 0 || x >= b.g.size || y < 0 || y >= b.g.size {
+	if x < 0 || x >= b.g.Size || y < 0 || y >= b.g.Size {
 		return nil, ErrOutOfBounds
 	}
-	idx := y*b.g.size + x
+	idx := y*b.g.Size + x
 	if b.white.At(idx) || b.black.At(idx) {
 		return nil, ErrOccupied
 	}
@@ -59,18 +59,18 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 			*them = (*them).Copy().AndNot(c)
 		}
 	}
-	if x < b.g.size-1 {
+	if x < b.g.Size-1 {
 		if c := out.deadGroupAt(idx+1, *them, *me); c != nil {
 			*them = (*them).Copy().AndNot(c)
 		}
 	}
 	if y > 0 {
-		if c := out.deadGroupAt(idx-b.g.size, *them, *me); c != nil {
+		if c := out.deadGroupAt(idx-b.g.Size, *them, *me); c != nil {
 			*them = (*them).Copy().AndNot(c)
 		}
 	}
-	if y < b.g.size-1 {
-		if c := out.deadGroupAt(idx+b.g.size, *them, *me); c != nil {
+	if y < b.g.Size-1 {
+		if c := out.deadGroupAt(idx+b.g.Size, *them, *me); c != nil {
 			*them = (*them).Copy().AndNot(c)
 		}
 	}
@@ -100,8 +100,8 @@ func (b *boardState) grow(root *bit.Vector) *bit.Vector {
 	next := root.Copy()
 	next.Or(root.Copy().Lsh(1).AndNot(b.g.r))
 	next.Or(root.Copy().Rsh(1).AndNot(b.g.l))
-	next.Or(root.Copy().Lsh(uint(b.g.size)))
-	next.Or(root.Copy().Rsh(uint(b.g.size)))
+	next.Or(root.Copy().Lsh(uint(b.g.Size)))
+	next.Or(root.Copy().Rsh(uint(b.g.Size)))
 	return next
 }
 
@@ -118,7 +118,7 @@ func (b *boardState) floodFill(root *bit.Vector, bounds *bit.Vector) *bit.Vector
 }
 
 func (b *boardState) at(x, y int) (Color, bool) {
-	bit := y*b.g.size + x
+	bit := y*b.g.Size + x
 	if b.white.At(bit) {
 		return White, true
 	}
@@ -130,9 +130,9 @@ func (b *boardState) at(x, y int) (Color, bool) {
 
 func (b *boardState) String() string {
 	out := &bytes.Buffer{}
-	for r := 0; r < b.g.size; r++ {
+	for r := 0; r < b.g.Size; r++ {
 		fmt.Fprintf(out, "% 2d", r)
-		for c := 0; c < b.g.size; c++ {
+		for c := 0; c < b.g.Size; c++ {
 			c, ok := b.at(c, r)
 			switch {
 			case !ok:

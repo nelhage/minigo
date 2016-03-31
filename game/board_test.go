@@ -12,29 +12,29 @@ import (
 var fixtureRE = regexp.MustCompile(`\A\s*((?:\d+\s*(?:[OX+*]\s*)+\n)+)`)
 
 func board(g *Game, in string) *boardState {
-	white := bit.NewVector(g.size * g.size)
-	black := bit.NewVector(g.size * g.size)
+	white := bit.NewVector(g.Size * g.Size)
+	black := bit.NewVector(g.Size * g.Size)
 
 	m := fixtureRE.FindStringSubmatch(in)
 	if m == nil {
 		panic(fmt.Sprintf("bad fixture:\n%s", in))
 	}
 	lines := strings.Split(strings.TrimRight(m[1], "\n"), "\n")
-	if len(lines) != g.size {
+	if len(lines) != g.Size {
 		panic(fmt.Sprintf("bad fixture (%d rows):\n%#v", len(lines), lines))
 	}
 	for i, l := range lines {
 		bits := strings.Split(l, " ")
-		if len(bits) != g.size+1 {
+		if len(bits) != g.Size+1 {
 			panic(fmt.Sprintf("bad fixture:\n%s", in))
 		}
 		for j, c := range bits[1:] {
 			switch c {
 			case "*", "+":
 			case "O":
-				white.Set(g.size*i + j)
+				white.Set(g.Size*i + j)
 			case "X":
-				black.Set(g.size*i + j)
+				black.Set(g.Size*i + j)
 			}
 		}
 	}
