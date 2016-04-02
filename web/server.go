@@ -34,9 +34,6 @@ func (s *Server) Init(c *Config) error {
 	}
 	s.game = game.New(size)
 
-	s.game.Move(4, 4)
-	s.game.Move(3, 3)
-	s.game.Move(6, 6)
 	return nil
 }
 

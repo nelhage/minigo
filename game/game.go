@@ -53,13 +53,30 @@ func (g *Game) ToPlay() Color {
 	return g.board.toPlay
 }
 
+// GameOver returns true if the game is over
+func (g *Game) GameOver() bool {
+	return g.board.gameOver()
+}
+
 // Move plays a stone at position (x,y)
 func (g *Game) Move(x, y int) error {
+	if g.board.gameOver() {
+		return ErrGameOver
+	}
 	b, err := g.board.move(x, y)
 	if err != nil {
 		return err
 	}
 	g.board = b
+	return nil
+}
+
+// Pass causes the current player to pass
+func (g *Game) Pass() error {
+	if g.board.gameOver() {
+		return ErrGameOver
+	}
+	g.board = g.board.pass()
 	return nil
 }
 

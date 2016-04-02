@@ -210,10 +210,11 @@ func TestSelfKill(t *testing.T) {
 
 func TestCapture(t *testing.T) {
 	cases := []struct {
-		in   string
-		who  Color
-		x, y int
-		out  string
+		in    string
+		who   Color
+		x, y  int
+		out   string
+		kills int
 	}{
 		{
 			`
@@ -241,6 +242,7 @@ func TestCapture(t *testing.T) {
 8 + + + + + + + + +
   0 1 2 3 4 5 6 7 8
 `,
+			1,
 		},
 		{
 			`
@@ -268,6 +270,7 @@ func TestCapture(t *testing.T) {
 8 + + + + + + + + +
   0 1 2 3 4 5 6 7 8
 `,
+			7,
 		},
 		{
 			`
@@ -295,6 +298,7 @@ func TestCapture(t *testing.T) {
 8 + + + + + + + + +
   0 1 2 3 4 5 6 7 8
 `,
+			3,
 		},
 		{
 			`
@@ -322,6 +326,7 @@ func TestCapture(t *testing.T) {
 8 + + + + + + + + +
   0 1 2 3 4 5 6 7 8
 `,
+			1,
 		},
 	}
 	for i, tc := range cases {
@@ -334,6 +339,15 @@ func TestCapture(t *testing.T) {
 		if !expect.white.Equal(g.board.white) ||
 			!expect.black.Equal(g.board.black) {
 			t.Errorf("%d: want:\n%s\ngot:\n%s", i, expect, g.board)
+		}
+		var killed int
+		if tc.who == White {
+			killed = g.board.whitePrisoners
+		} else {
+			killed = g.board.blackPrisoners
+		}
+		if killed != tc.kills {
+			t.Errorf("%d: killed %d want %d", i, killed, tc.kills)
 		}
 	}
 }
