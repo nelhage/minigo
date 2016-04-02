@@ -42,6 +42,13 @@ type boardState struct {
 }
 
 func (b *boardState) move(x, y int) (*boardState, error) {
+	out := *b
+	out.prev = b
+	out.toPlay = !out.toPlay
+	if x < 0 && y < 0 {
+		out.passes++
+		return &out, nil
+	}
 	if x < 0 || x >= b.g.Size || y < 0 || y >= b.g.Size {
 		return nil, ErrOutOfBounds
 	}
@@ -49,8 +56,6 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 	if b.white.At(idx) || b.black.At(idx) {
 		return nil, ErrOccupied
 	}
-	out := *b
-	out.prev = b
 	var me, them **bit.Vector
 	var prisoners *int
 	if b.toPlay == White {
@@ -95,17 +100,8 @@ func (b *boardState) move(x, y int) (*boardState, error) {
 		return nil, ErrKo
 	}
 
-	out.toPlay = !out.toPlay
 	out.passes = 0
 	return &out, nil
-}
-
-func (b *boardState) pass() *boardState {
-	next := *b
-	next.prev = b
-	next.toPlay = !next.toPlay
-	next.passes++
-	return &next
 }
 
 func (b *boardState) gameOver() bool {

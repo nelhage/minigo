@@ -58,7 +58,8 @@ func (g *Game) GameOver() bool {
 	return g.board.gameOver()
 }
 
-// Move plays a stone at position (x,y)
+// Move plays a stone at position (x,y). A move at -1,-1 acts as a
+// pass.
 func (g *Game) Move(x, y int) error {
 	if g.board.gameOver() {
 		return ErrGameOver
@@ -68,15 +69,6 @@ func (g *Game) Move(x, y int) error {
 		return err
 	}
 	g.board = b
-	return nil
-}
-
-// Pass causes the current player to pass
-func (g *Game) Pass() error {
-	if g.board.gameOver() {
-		return ErrGameOver
-	}
-	g.board = g.board.pass()
 	return nil
 }
 

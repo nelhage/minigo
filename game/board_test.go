@@ -372,3 +372,22 @@ func TestKo(t *testing.T) {
 		t.Fatal("ko:", err)
 	}
 }
+
+func TestPass(t *testing.T) {
+	g := New(9)
+	if err := g.Move(-1, -1); err != nil {
+		t.Fatalf("Pass: %v", err)
+	}
+	if g.board.passes != 1 {
+		t.Errorf("passes %d != 1", g.board.passes)
+	}
+	if err := g.Move(-1, -1); err != nil {
+		t.Fatalf("Pass: %v", err)
+	}
+	if g.board.passes != 2 {
+		t.Errorf("passes %d != 2", g.board.passes)
+	}
+	if !g.GameOver() {
+		t.Fatal("not over")
+	}
+}
